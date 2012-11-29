@@ -7,7 +7,7 @@
 
 <!DOCTYPE module SYSTEM "../../../../dtd/module.dtd">
 
-<module name="Module ngx_http_core_module"
+<module name="ngx_http_core_module模块"
         link="/en/docs/http/ngx_http_core_module.html"
         lang="en"
         rev="5">
@@ -28,15 +28,19 @@
 <para>
 Enables or disables the use of asynchronous file I/O (AIO)
 on FreeBSD and Linux.
+在FreeBSD上启用或者禁用异步文件I/O(AIO).
 </para>
 
 <para>
 On FreeBSD, AIO is usable starting from FreeBSD&nbsp;4.3.
 AIO can either be linked statically into a kernel:
+在FreeBSD, AIO 开始用于FreeBSD4.3版本.
+AIO可以静态链接到内核:
 <example>
 options VFS_AIO
 </example>
 or loaded dynamically as a kernel loadable module:
+或者作为一个内核模块动态加载:
 <example>
 kldload aio
 </example>
@@ -53,27 +57,39 @@ without the penalty of running the networking subsystem under a
 Giant lock&mdash;for this to work, the AIO module needs to be loaded
 after the kernel has booted.
 In this case, the following message will appear in
+在FreeBSD版本5和6, 启动内核时使用静态或动态AIO，会导致整个网络系统使用全局锁，
+从而对性能产生负面影响。2009年FreeBSD6.4-STABLE里删除了这个限制，以及FreeBSD7。
+尽管如此，从FreeBSD5.3开始，在运行网络系统使用全局锁没有不利的情况下，是可以使用AIO的。
+这项工作，AIO模块需要在内核启动后加载。
+在这种情况下，下面的信息将出现在/var/log/messages里
 <path>/var/log/messages</path>
 <example>
 WARNING: Network stack Giant-free, but aio requires Giant.
 Consider adding 'options NET_WITH_GIANT' or setting debug.mpsafenet=0
+WARNING：网络协议栈很大空闲，但是aio需要大的空间。
+可以添加NET_WITH_GIANT选项或设置debug.mpsafenet=0
 </example>
 and can safely be ignored.
+这样是可以安全忽略的。
 <note>
 The requirement to use the Giant lock with AIO is related to the
 fact that FreeBSD supports asynchronous calls
+AIO带全局锁的要求与FreeBSD在socket通信时，支持异步调用相关联
 <c-func>aio_read</c-func>
-and
+和
 <c-func>aio_write</c-func>
 when working with sockets.
 However, since nginx only uses AIO for disk I/O, no problems should arise.
+尽管如此，自从nginx使用AIO作为磁盘I/O, 没有出现过问题。
 </note>
 </para>
 
 <para>
 For AIO to work,
+使用AIO时，
 <link id="sendfile"/>
 needs to be disabled:
+需要禁用：
 <example>
 location /video/ {
     sendfile       off;
@@ -86,6 +102,7 @@ location /video/ {
 <para>
 In addition, starting from FreeBSD&nbsp;5.2.1 and nginx&nbsp;0.8.12, AIO can
 also be used to pre-load data for <c-func>sendfile</c-func>:
+另外，从FreeBSD5.2.1和nginx0.8.12开始，AIO可以为sendfile预加载数据。
 <example>
 location /video/ {
     sendfile       on;
@@ -105,7 +122,7 @@ This can be tuned using the
 <link id="read_ahead"/>
 directive.
 </para>
-
+这种情况下，
 <para>
 On Linux, AIO is usable starting from kernel version 2.6.22;
 plus, it is also necessary to enable
